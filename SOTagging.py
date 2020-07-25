@@ -31,9 +31,8 @@ with open("SODataset.csv") as corpusFile:
 
 
 #Using pandas library
-
-dataFrame = pandas.read_csv("SODataset.csv")
-
+corpusDF = pandas.read_csv("SODataset.csv") #corpusDF is the DataFrame structure representing the corpus
+print("Corpus has been read in as a DataFrame structure")
 
 
 """2. Prepare the Data"""
@@ -82,23 +81,23 @@ def tagsAsList(tags: str):
 	Extract individual tags and store them as a list of tags for that row's 'tags' value
 		by using the tagsAsList() function defined above
 	
-	We can use the pandas function apply() to do this for us on (a column of) the entire dataFrame at once
+	We can use the pandas function apply() to do this for us on (a column of) the entire corpusDF at once
 		instead of us iterating through each row, and applying the tagsAsList() to the 'tags' value for that row
 	apply() takes in the function that we want to apply to all the values of a column as an ARGUMENT -> we are not 
 		calling the function thus not putting the round brackets after the function name
 	
 """
-dataFrame['tags'] = dataFrame['tags'].apply(tagsAsList)
+corpusDF['tags'] = corpusDF['tags'].apply(tagsAsList)
+print("Tags have been stored as a list for each StackOverflow question")
 
 
 """
-	Now, even though when displaying the dataFrame the values in the 'tags' column look the 
+	Now, even though when displaying the corpusDF, the values in the 'tags' column look the 
 		exact same as before (opening and closing square brackets enclosing the list, each tag within single quotes, 
-		and tags separated with commas), they are instead STORED as list instead of a string. 
+		and tags separated with commas), they are instead STORED as a list instead of a string. 
 	Those extra symbols are added when printing a list(these were initially part of the actual string as characters,
 		which is what we dont't want) 
 """
-
 
 
 """
@@ -106,27 +105,55 @@ dataFrame['tags'] = dataFrame['tags'].apply(tagsAsList)
 		mixture of both uppercase and lowercase
 	So we need to convert all the text in the 'title' column to lowercase
 """
-dataFrame['title'] = dataFrame['title'].str.lower()
+corpusDF['title'] = corpusDF['title'].str.lower()
+print("All question titles have been converted to lowercase")
 
-#Display x rows in the dataFrame
+
+"""Display information about the corpus"""
+tagsList = [] #list of all the tags used (will contain duplicates)
+
+for questionTags in corpusDF['tags'].values: #questionTags is a list of all the tags for that question(row)
+	for tag in questionTags:
+		tagsList.append(tag)
+
+tagsSet = set(tagsList) #convert tagsList to a set to only store unique tags (one instance of each tag)
+uniqueTagsList = list(tagsSet)
+
+print("\nInformation about the corpus:")
+print("\tNumber of questions: ", len(corpusDF), sep='\t\t')     #100000
+print("\tTotal number of tags used: ", len(tagsList), sep='\t') #194219
+print("\tNumber of unique tags: ", len(tagsSet), sep='\t\t')    #100
+
+
+
+#Display x rows in the corpusDF
 	#Using slicing - > [startIndex, endIndex+1] -> the second arg value is exclusive
-print(dataFrame[1:5])
+print(corpusDF[1:5])
 print()
 
-#Display x rows in the dataFrame using iloc
+#Access the actual values of x rows in the corpusDF (WITHOUT the indexes and column headings)
+	#each row is a list/array, with the values for the columns (for that row) being separated by a space
+	#each row is also an element of a list of all the rows -> 2D array
+		#However, in our case for corpusDF, since the element in the 2nd column for a row is a List of tags, we end up with a 3D Array
+			#But if we looping through corpusDF['tags'].values only, then it'll be a 2D array as now the elements of a row can be seen as the tags (since we ignoring the title)
+	#since these are list, we can traverse through them using for loops
+print(corpusDF[1:5].values)
+print()
+
+#Display x rows in the corpusDF using iloc
 	#iloc also uses slicing (but doesnt have to, can put a single index to display data for 1 row)
-print(dataFrame.iloc[1:3])
+print(corpusDF.iloc[1:3])
 print()
 
-#Display the column heading of the dataFrame
-for i in dataFrame:
+#Display the column heading of the corpusDF
+for i in corpusDF:
 	print(i)
 print()
 
 
 #get(key) -> Get item(s) from object for given key (e.g. a key can be a  DataFrame column)
 #Display rows 0-2 for the 'tags' column
-print(dataFrame[0:3].get('tags'))
+print(corpusDF[0:3].get('tags'))
 
 
 
@@ -134,7 +161,7 @@ print(dataFrame[0:3].get('tags'))
 print()
 print("Iteration:")
 
-for i, j in dataFrame.iterrows(): #i is the index; j is the columns(panda Series')
+for i, j in corpusDF[0:5].iterrows(): #i is the index; j is the columns(panda Series')
 	print(j['tags'])
 	#tagsList = tagsAsList(j['tags'])
 	#j['tags'] = tagsList
@@ -145,10 +172,17 @@ print()
 
 print()
 
-#Display all the rows and columns in the dataFrame (i.e. the entire 2d array/table) [also displays the indexes]
-print(dataFrame)
+#Display all the rows and columns in the corpusDF (i.e. the entire 2d array/table) [also displays the indexes]
+print(corpusDF)
 print()
 
 #Display all the rows for the 'tags' column [also displays the indexes]
-print(dataFrame['tags'])
+print(corpusDF['tags'])
+
+print()
+print(corpusDF.info())
+
+print()
+print('Duplicate entries: {}'.format(corpusDF['title'].duplicated().sum()))
+
 
