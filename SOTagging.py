@@ -35,16 +35,16 @@ with open("SODataset.csv") as corpusFile:
 dataFrame = pandas.read_csv("SODataset.csv")
 
 
+
 """2. Prepare the Data"""
+
 
 """
 	Both the csv and pandas library do not recognise the elements in the 'tags' column in the corpus CSV file
 		as a list/array of elements. It sees it as a string. 
-	So we need to process the data to extract the tags for a question and store them in a list (for that row) and then 
-		replace the initial string with this list as the tags for that question
+	So we need to process the data to extract the individual tags for a question and store them in a list (for that row)
+		and then replace the initial string with this list as the tags for that question
 """
-
-
 def tagsAsList(tags: str):
 	"""
 	:param tags: the tags for a StackOverflow question as a string
@@ -77,12 +77,36 @@ def tagsAsList(tags: str):
 
 	return tagsList
 
-#testing the regex
-t = "['iphone', 'objective-c', 'ios', 'cocoa-touch']"
-print(tagsAsList(t))
+
+"""
+	Extract individual tags and store them as a list of tags for that row's 'tags' value
+		by using the tagsAsList() function defined above
+	
+	We can use the pandas function apply() to do this for us on (a column of) the entire dataFrame at once
+		instead of us iterating through each row, and applying the tagsAsList() to the 'tags' value for that row
+	apply() takes in the function that we want to apply to all the values of a column as an ARGUMENT -> we are not 
+		calling the function thus not putting the round brackets after the function name
+	
+"""
+dataFrame['tags'] = dataFrame['tags'].apply(tagsAsList)
+
+
+"""
+	Now, even though when displaying the dataFrame the values in the 'tags' column look the 
+		exact same as before (opening and closing square brackets enclosing the list, each tag within single quotes, 
+		and tags separated with commas), they are instead STORED as list instead of a string. 
+	Those extra symbols are added when printing a list(these were initially part of the actual string as characters,
+		which is what we dont't want) 
+"""
 
 
 
+"""
+	All the tags (in the tags column) in the coprus are in lowercase but the questions (in the title column) are in a 
+		mixture of both uppercase and lowercase
+	So we need to convert all the text in the 'title' column to lowercase
+"""
+dataFrame['title'] = dataFrame['title'].str.lower()
 
 #Display x rows in the dataFrame
 	#Using slicing - > [startIndex, endIndex+1] -> the second arg value is exclusive
@@ -110,12 +134,11 @@ print(dataFrame[0:3].get('tags'))
 print()
 print("Iteration:")
 
-for i, j in dataFrame[1:5].iterrows():
-	print(i, j)
-
+for i, j in dataFrame.iterrows(): #i is the index; j is the columns(panda Series')
 	print(j['tags'])
-	tagsList = tagsAsList(j['tags'])
-	for i in tagsList:
+	#tagsList = tagsAsList(j['tags'])
+	#j['tags'] = tagsList
+	for i in j['tags']:
 		print(i, end='\t')
 	print("\n============================================================================")
 print()
@@ -128,3 +151,4 @@ print()
 
 #Display all the rows for the 'tags' column [also displays the indexes]
 print(dataFrame['tags'])
+
