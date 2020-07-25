@@ -11,7 +11,7 @@
 """
 import csv
 import pandas
-import  re # regular expression module
+import  re #regular expression module
 
 
 """1. Obtain corpus"""
@@ -85,4 +85,3 @@ for i, j in dataFrame[1:5].iterrows():
 	print(j['tags'])
 print()
 print(dataFrame)
-
