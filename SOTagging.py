@@ -12,6 +12,7 @@
 import csv
 import pandas
 import  re #regular expression module
+import nltk
 
 
 """1. Obtain corpus"""
@@ -68,7 +69,7 @@ def tagsAsList(tags: str):
 		except ValueError: #ValueError thrown when substring ',' is not found in tagsMod -> this means that there is only one tag left
 			tag = tagsMod
 			tagsList.append(tag)
-			break
+			break #We are done with all the tags so exit the loop (don't execute the remaining loop code) to return the tagsList
 
 		tag = tagsMod[0:commaIndex]
 		tagsList.append(tag)
@@ -109,7 +110,24 @@ corpusDF['title'] = corpusDF['title'].str.lower()
 print("All question titles have been converted to lowercase")
 
 
+"""
+	Some question titles don't end in a question mark whilst others do.
+	To ensure uniformity, we are going to remove question marks from the question titles
+"""
+def removeQM(question : str):
+	"""
+		:param question: a StackOverflow question as a string
+		:returns: the question with question mark(s) removed (if it had any)
+	"""
+	return question.replace('?', '')
+
+
+corpusDF['title'] = corpusDF['title'].apply(removeQM)
+print("Question marks have been removed from question titles")
+
+
 """Display information about the corpus"""
+
 tagsList = [] #list of all the tags used (will contain duplicates)
 
 for questionTags in corpusDF['tags'].values: #questionTags is a list of all the tags for that question(row)
@@ -125,13 +143,25 @@ print("\tTotal number of tags used: ", len(tagsList), sep='\t') #194219
 print("\tNumber of unique tags: ", len(tagsSet), sep='\t\t')    #100
 
 
+"""
+#Displaying a frequency distribution  of the tags
+tagsFD = nltk.FreqDist(tagsList)
+from matplotlib import pyplot
+pyplot.style.use('bmh')
+fig, ax = pyplot.subplots(figsize=(15, 10))
+tagsFD.plot(100, cumulative=False)
+"""
+
+
+print()
+
 
 #Display x rows in the corpusDF
 	#Using slicing - > [startIndex, endIndex+1] -> the second arg value is exclusive
 print(corpusDF[1:5])
 print()
 
-#Access the actual values of x rows in the corpusDF (WITHOUT the indexes and column headings)
+#Access/display the actual values of x rows in the corpusDF (WITHOUT the indexes and column headings)
 	#each row is a list/array, with the values for the columns (for that row) being separated by a space
 	#each row is also an element of a list of all the rows -> 2D array
 		#However, in our case for corpusDF, since the element in the 2nd column for a row is a List of tags, we end up with a 3D Array
