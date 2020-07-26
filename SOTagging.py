@@ -5,14 +5,22 @@
 
 	Language Classification (Tagging) of Stack Overflow Questions
 
+
+	This project has been developed using:
+		Python 3.8.1
+		PyCharm 2019.3.3 (Professional Edition) Build #PY-193.6494.30
+
 	Acknowledgements:
 		1. GeeksForGeeks tutorials on pandas' DataFrame
 
 """
+
+
 import csv
 import pandas
 import  re #regular expression module
 import nltk
+import sklearn
 
 
 """1. Obtain corpus"""
@@ -123,23 +131,59 @@ print("All question titles have been converted to lowercase")
 			"AttributeError: 'NoneType' object has no attribute 'split'"
 			"JavaScript: How can I insert a string at a specific index"
 	Thus the colon is unnecessary and should be removed
+	
+	Round Brackets are used in 2 ways:
+		1. Opening and Closing round bracket pair attached at the end of a function to show that its a function.
+			E.g. ...'parseDouble()'..., 'clear() methods in Java'
+		2. As parenthesis To specify extra information.
+			E.g.
+				'What does this (matplotlib) error message mean?'
+				'.animate not working in Firefox (.css does though)'
+				'Insert rows (parent and children) programmatically'
+	For 1. we do not want the round brackets to be removed, however for 2. we want it removed so that it is not
+		part of the token for the first and last words within the parenthesis
+			E.g. we want 'parent' and not '(parent' to be counted as a token
 """
 def cleanPunct(question : str):
 	"""
 		:param question: a StackOverflow question as a string
-		:returns: the question with question mark(s) and colon(s) removed (if it had any)
+		:returns: the question with question mark(s), colon(s) and unnecessary round brackets removed removed (if it had any)
 	"""
 	# return question.replace('?', '')
-	return re.sub(r'[\?\:]', '', question)
+
+	"""
+		Within the sqaure brackets, we do NOT have to escape the non-alphabetic characters
+			E.g. can put just '?' instead of '\?' inside the sqaure brackets to match a question mark character,
+				even though '?' is a special character
+	"""
+
+	"""
+		Remove round brackets where they are not used for a function (See multi-line comment above this function for explanation)
+		
+		Since '<functionBrackets>' is not used anywhere in the corpus we can use it to temporarily 
+			replace '()' opening and closing round bracket pairs
+		We then remove all instances of round brackets (both opening and closing)
+		
+		Then the round bracket pairings for functions are put back by replacing '<functionBrackets>' with them
+	"""
+	question = re.sub(r'\(\)', '<functionBrackets>', question)
+	question = re.sub(r'[()]', '', question)
+	question = re.sub(r'<functionBrackets>', '()', question)
+
+	#Remove Question Marks and colons
+	question = re.sub(r'[?:]', '', question)
+	return re.sub(r'[?:]', '', question)
+
 
 #print(corpusDF[23:24].values)
+#print(corpusDF[53:54].values)
+#print(corpusDF[106:107].values)
 corpusDF['title'] = corpusDF['title'].apply(cleanPunct)
 print("Unnecessary punctuation has been removed from question titles")
 #print(corpusDF[23:24].values)
+#print(corpusDF[53:54].values)
+#print(corpusDF[106:107].values)
 
-"""
-	
-"""
 
 """Display information about the corpus"""
 
@@ -156,7 +200,7 @@ print("\nInformation about the corpus:")
 print("\tNumber of questions: ", len(corpusDF), sep='\t\t')     #100000
 print("\tTotal number of tags used: ", len(tagsList), sep='\t') #194219
 print("\tNumber of unique tags: ", len(tagsSet), sep='\t\t')    #100
-
+print()
 
 """
 #Displaying a frequency distribution  of the tags
@@ -166,6 +210,67 @@ pyplot.style.use('bmh')
 fig, ax = pyplot.subplots(figsize=(15, 10))
 tagsFD.plot(100, cumulative=False)
 """
+
+#LDA - from the Kaggle Tutorial
+
+#from nltk.tokenize import word_tokenize
+#corpusDF['title'] = corpusDF['title'].apply(word_tokenize)
+titlesDocument = corpusDF['title']
+
+"""
+	token_pattern=r'(?u)\S\S+'
+	
+	token_pattern is a regular expression that denotes what constitutes a "token"
+		The default token_pattern selects tokens of 2 or more alphanumeric characters 
+			Punctuation is completely ignored and always treated as a token separator
+					
+	Thus the default token_pattern will not work for us as some words in the 'title' will contain
+		punctuation characters, but we want those chars to be part of the token (as they are part of the programming syntax/jargon)
+		E.g. 'C#, 'C++', 'ASP.NET', 'ERR_CONNECTION_REFUSED'
+
+	The custom token_pattern (see top of comment) considers a token a sequence of 2 or more non-whitespace characters 
+		and works for us for this corpus
+"""
+vectoriserTrain = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=1000)
+
+"""
+	Each row in the matrix_TF_IDF is: (corpusRowNumber, featureNumber) \t probability?
+	For a question from 'title' column in the corpus contaning n words/tokens, there will 
+		be n rows in matrix_TF_IDF, one for each word/token(feature) in the question
+	Thus the total number of rows in matrix_TF_IDF is the total number of tokens in 
+		the 'titles' column in the corpus (IF max_features not specified)
+	Thus the matrix_TF_IDF is a combination of all (corpusRowNumber, featureNumber) pairings
+	
+	max_features (parameter in TfidfVectorizer above) – If specified, build a vocabulary that only 
+		considers the top <max_features> features ordered by term frequency across the corpus
+	IF max_features is specified, then matrix_TF_IDF will only consist of (corpusRowNumber, featureNumber) pairings
+		for features that are part of the top <max_features> features
+"""
+matrix_TF_IDF = vectoriserTrain.fit_transform(titlesDocument)
+print(vectoriserTrain.get_feature_names())
+print(matrix_TF_IDF.shape) #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
+print(matrix_TF_IDF)
+
+#LDA is a topic modeling algorithm that is used to extract topics with keywords in unlabeled documents
+from sklearn.decomposition import LatentDirichletAllocation
+noTopics = 20
+lda = LatentDirichletAllocation(noTopics, learning_method='online').fit(matrix_TF_IDF)
+
+def display_topics(model, feature_names, noOfTopWords):
+	for topic_idx, topic in enumerate(model.components_):
+		print("--------------------------------------------")
+		print("Topic %d:" % (topic_idx))
+		print(" ".join([feature_names[i] for i in topic.argsort()[:-noOfTopWords - 1:-1]]))
+		print("--------------------------------------------")
+
+noTopWords = 10
+display_topics(lda, vectoriserTrain.get_feature_names(), noTopWords) #Display the top <noTopWords> keywords in each of the <noTopics> topics
+
+
+
+
+
+
 
 
 print()
@@ -229,5 +334,3 @@ print(corpusDF.info())
 
 print()
 print('Duplicate entries: {}'.format(corpusDF['title'].duplicated().sum()))
-
-
