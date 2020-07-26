@@ -111,20 +111,35 @@ print("All question titles have been converted to lowercase")
 
 
 """
+	Remove Unnecessary Punctuation
+		Will not be removing all punctuation as many punctuation symbols are part of programming syntax/jargon
+	
 	Some question titles don't end in a question mark whilst others do.
 	To ensure uniformity, we are going to remove question marks from the question titles
+	
+	Many of the questions contain a colon - it is mostly used in the question to explain what the question
+		is about after mentioning a programming language or term (e.g. a function, error, etc.)
+		E.g.:
+			"AttributeError: 'NoneType' object has no attribute 'split'"
+			"JavaScript: How can I insert a string at a specific index"
+	Thus the colon is unnecessary and should be removed
 """
-def removeQM(question : str):
+def cleanPunct(question : str):
 	"""
 		:param question: a StackOverflow question as a string
-		:returns: the question with question mark(s) removed (if it had any)
+		:returns: the question with question mark(s) and colon(s) removed (if it had any)
 	"""
-	return question.replace('?', '')
+	# return question.replace('?', '')
+	return re.sub(r'[\?\:]', '', question)
 
+#print(corpusDF[23:24].values)
+corpusDF['title'] = corpusDF['title'].apply(cleanPunct)
+print("Unnecessary punctuation has been removed from question titles")
+#print(corpusDF[23:24].values)
 
-corpusDF['title'] = corpusDF['title'].apply(removeQM)
-print("Question marks have been removed from question titles")
-
+"""
+	
+"""
 
 """Display information about the corpus"""
 
