@@ -1,0 +1,9 @@
+1. Obtain corpus
+    Used pandas DataFrame
+
+2. Prepare the Data
+	2.1 tagsAsList()
+	2.2 'titles' to lowercase
+	2.3 cleanPunct()
+
+3. Training
