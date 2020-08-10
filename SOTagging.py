@@ -18,7 +18,7 @@
 
 import csv
 import pandas
-import  re #regular expression module
+import re #regular expression module
 import nltk
 import sklearn
 
@@ -105,7 +105,7 @@ print("Tags have been stored as a list for each StackOverflow question")
 		exact same as before (opening and closing square brackets enclosing the list, each tag within single quotes, 
 		and tags separated with commas), they are instead STORED as a list instead of a string. 
 	Those extra symbols are added when printing a list(these were initially part of the actual string as characters,
-		which is what we dont't want) 
+		which is what we didn't want) 
 """
 
 
@@ -162,23 +162,23 @@ def cleanPunct(question : str):
 		
 		Since '<functionBrackets>' is not used anywhere in the corpus we can use it to temporarily 
 			replace '()' opening and closing round bracket pairs
-		We then remove all instances of round brackets (both opening and closing)
+		We then remove all instances of round brackets (both opening and closing) [these are the round brackets not used as the function brackets]
 		
 		Then the round bracket pairings for functions are put back by replacing '<functionBrackets>' with them
 	"""
-	question = re.sub(r'\(\)', '<functionBrackets>', question)
+	question = re.sub(r'\(\)', '<functionBrackets>', question)  #We have to escape both the opening and closing round brackets
 	question = re.sub(r'[()]', '', question)
 	question = re.sub(r'<functionBrackets>', '()', question)
 
 	#Remove Question Marks and colons
 	question = re.sub(r'[?:]', '', question)
-	return re.sub(r'[?:]', '', question)
+	return question
 
 
 #print(corpusDF[23:24].values)
 #print(corpusDF[53:54].values)
 #print(corpusDF[106:107].values)
-corpusDF['title'] = corpusDF['title'].apply(cleanPunct)
+corpusDF['title'] = corpusDF['title'].apply(cleanPunct) #apply cleanPuct() to the 'title' field/column for all the rows
 print("Unnecessary punctuation has been removed from question titles")
 #print(corpusDF[23:24].values)
 #print(corpusDF[53:54].values)
@@ -211,11 +211,16 @@ fig, ax = pyplot.subplots(figsize=(15, 10))
 tagsFD.plot(100, cumulative=False)
 """
 
-#LDA - from the Kaggle Tutorial
+
+"""3. Training"""
+
 
 #from nltk.tokenize import word_tokenize
 #corpusDF['title'] = corpusDF['title'].apply(word_tokenize)
+
 titlesDocument = corpusDF['title']
+tagsDocument = corpusDF['tags']
+
 
 """
 	token_pattern=r'(?u)\S\S+'
@@ -234,27 +239,45 @@ titlesDocument = corpusDF['title']
 vectoriserTrain = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=1000)
 
 """
-	Each row in the matrix_TF_IDF is: (corpusRowNumber, featureNumber) \t probability?
+	Each row in the titlesMatrix_TF_IDF is: (corpusRowNumber, featureNumber) \t probability?
 	For a question from 'title' column in the corpus contaning n words/tokens, there will 
-		be n rows in matrix_TF_IDF, one for each word/token(feature) in the question
-	Thus the total number of rows in matrix_TF_IDF is the total number of tokens in 
+		be n rows in titlesMatrix_TF_IDF, one for each word/token(feature) in the question
+	Thus the total number of rows in titlesMatrix_TF_IDF is the total number of tokens in 
 		the 'titles' column in the corpus (IF max_features not specified)
-	Thus the matrix_TF_IDF is a combination of all (corpusRowNumber, featureNumber) pairings
+	Thus the titlesMatrix_TF_IDF is a combination of all (corpusRowNumber, featureNumber) pairings
 	
 	max_features (parameter in TfidfVectorizer above) – If specified, build a vocabulary that only 
 		considers the top <max_features> features ordered by term frequency across the corpus
-	IF max_features is specified, then matrix_TF_IDF will only consist of (corpusRowNumber, featureNumber) pairings
+	IF max_features is specified, then titlesMatrix_TF_IDF will only consist of (corpusRowNumber, featureNumber) pairings
 		for features that are part of the top <max_features> features
 """
-matrix_TF_IDF = vectoriserTrain.fit_transform(titlesDocument)
+titlesMatrix_TF_IDF = vectoriserTrain.fit_transform(titlesDocument)
 print(vectoriserTrain.get_feature_names())
-print(matrix_TF_IDF.shape) #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
-print(matrix_TF_IDF)
+print(titlesMatrix_TF_IDF.shape) #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
+print(titlesMatrix_TF_IDF)
 
+print()
+
+"""
+	A MultiLabelBinarizer object transforms a list of tuples into a binary matrix using the fit_transform() function
+		indicating the presence of a class (tag) label
+	
+	tagsDocument(corpusDF['tags']) is a 2D Array - it is a list of rows from the corpus,
+		and each row contains a tuple (a list of tags) for that rows question ('title' column)
+"""
+tagsBinarizer = sklearn.preprocessing.MultiLabelBinarizer() #create MLB object
+#tagsDocument = tagsDocument[1:5]
+tagsBinaryMatrix = tagsBinarizer.fit_transform(tagsDocument) #create the binary matrix
+print(tagsBinarizer.classes_) # displays the set of all (unique) tags (100 tags)
+print(tagsBinaryMatrix)
+#print(tagsDocument[1:4].values)
+
+
+"""
 #LDA is a topic modeling algorithm that is used to extract topics with keywords in unlabeled documents
 from sklearn.decomposition import LatentDirichletAllocation
 noTopics = 20
-lda = LatentDirichletAllocation(noTopics, learning_method='online').fit(matrix_TF_IDF)
+lda = LatentDirichletAllocation(noTopics, learning_method='online').fit(titlesMatrix_TF_IDF)
 
 def display_topics(model, feature_names, noOfTopWords):
 	for topic_idx, topic in enumerate(model.components_):
@@ -265,9 +288,7 @@ def display_topics(model, feature_names, noOfTopWords):
 
 noTopWords = 10
 display_topics(lda, vectoriserTrain.get_feature_names(), noTopWords) #Display the top <noTopWords> keywords in each of the <noTopics> topics
-
-
-
+"""
 
 
 
