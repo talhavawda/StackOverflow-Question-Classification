@@ -240,7 +240,7 @@ tagsDocument = corpusDF['tags']
 	The custom token_pattern (see top of comment) considers a token a sequence of 2 or more non-whitespace characters 
 		and works for us for this corpus
 """
-maxFeatures = 1000
+maxFeatures = 5000
 titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=maxFeatures)
 from scipy.sparse import hstack
 #titlesVectorizer = hstack([titlesVectorizer])
@@ -352,7 +352,7 @@ for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paCla
 	print("Predictions Count: ", count)
 	print("Accuracy: ", sklearn.metrics.accuracy_score(tagsTest, tagsPredict))
 	print("Jaccard Score: ", sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples'))
-	print("Hamming loss: ", sklearn.metrics.hamming_loss(tagsTest, tagsPredict) * 100)
+	print("Hamming Loss: ", sklearn.metrics.hamming_loss(tagsTest, tagsPredict) * 100)
 	print("-----------------------------------")
 
 
@@ -443,7 +443,7 @@ print("Classification Report")
 """
 	Build a text report showing the main classification metrics
 """
-print(sklearn.metrics.classification_report(tagsTest, tagsPredict))
+print(sklearn.metrics.classification_report(tagsTest, tagsPredict, target_names=tagsBinarizer.classes_))
 #Do CM on entire matrix (overall)
 #print(sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
 

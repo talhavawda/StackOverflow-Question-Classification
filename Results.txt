@@ -10,25 +10,25 @@ Classifier: LinearSVC
 Predictions Count:  39783
 Accuracy:  0.34839393939393937
 Jaccard Score:  0.5406113275613275
-Hamming loss:  1.0653636363636363
+Hamming Loss:  1.0653636363636363
 -----------------------------------
 Classifier: MultinomialNB
 Predictions Count:  6186
 Accuracy:  0.05703030303030303
 Jaccard Score:  0.11052070707070707
-Hamming loss:  1.7659999999999998
+Hamming Loss:  1.7659999999999998
 -----------------------------------
 Classifier: Perceptron
 Predictions Count:  56694
 Accuracy:  0.24672727272727274
 Jaccard Score:  0.4839684704184704
-Hamming loss:  1.5149696969696969
+Hamming Loss:  1.5149696969696969
 -----------------------------------
 Classifier: PassiveAggressiveClassifier
 Predictions Count:  49450
 Accuracy:  0.3077575757575758
 Jaccard Score:  0.526548556998557
-Hamming loss:  1.2672121212121212
+Hamming Loss:  1.2672121212121212
 -----------------------------------
 
 =========================================================================================================
@@ -39,31 +39,31 @@ Classifier: LogisticRegression
 Predictions Count:  31191
 Accuracy:  0.2831818181818182
 Jaccard Score:  0.4474240259740259
-Hamming loss:  1.1972727272727273
+Hamming Loss:  1.1972727272727273
 -----------------------------------
 Classifier: LinearSVC
 Predictions Count:  39825
 Accuracy:  0.3495757575757576
 Jaccard Score:  0.5404950216450216
-Hamming loss:  1.0707878787878786
+Hamming Loss:  1.0707878787878786
 -----------------------------------
 Classifier: MultinomialNB
 Predictions Count:  6205
 Accuracy:  0.05624242424242424
 Jaccard Score:  0.109860101010101
-Hamming loss:  1.7685454545454546
+Hamming Loss:  1.7685454545454546
 -----------------------------------
 Classifier: Perceptron
 Predictions Count:  59311
 Accuracy:  0.24254545454545454
 Jaccard Score:  0.48420206830206824
-Hamming loss:  1.558121212121212
+Hamming Loss:  1.558121212121212
 -----------------------------------
 Classifier: PassiveAggressiveClassifier
 Predictions Count:  50180
 Accuracy:  0.3075151515151515
 Jaccard Score:  0.529046115921116
-Hamming loss:  1.276939393939394
+Hamming Loss:  1.276939393939394
 -----------------------------------
 
 =========================================================================================================
@@ -74,31 +74,31 @@ Classifier: LogisticRegression
 Predictions Count:  32095
 Accuracy:  0.2861212121212121
 Jaccard Score:  0.45541904761904756
-Hamming loss:  1.1828181818181818
+Hamming Loss:  1.1828181818181818
 -----------------------------------
 Classifier: LinearSVC
 Predictions Count:  40491
 Accuracy:  0.3496969696969697
 Jaccard Score:  0.5431690476190476
-Hamming loss:  1.0777878787878787
+Hamming Loss:  1.0777878787878787
 -----------------------------------
 Classifier: MultinomialNB
 Predictions Count:  14473
 Accuracy:  0.1343030303030303
 Jaccard Score:  0.2480907713498622
-Hamming loss:  1.555969696969697
+Hamming Loss:  1.555969696969697
 -----------------------------------
 Classifier: Perceptron
 Predictions Count:  62467
 Accuracy:  0.23915151515151514
 Jaccard Score:  0.48579071669071666
-Hamming loss:  1.629060606060606
+Hamming Loss:  1.629060606060606
 -----------------------------------
 Classifier: PassiveAggressiveClassifier
 Predictions Count:  52350
 Accuracy:  0.31066666666666665
 Jaccard Score:  0.5366055194805195
-Hamming loss:  1.2965454545454547
+Hamming Loss:  1.2965454545454547
 -----------------------------------
 
 =========================================================================================================
@@ -109,29 +109,178 @@ Classifier: LogisticRegression
 Predictions Count:  32009
 Accuracy:  0.28839393939393937
 Jaccard Score:  0.45661854256854256
-Hamming loss:  1.187848484848485
+Hamming Loss:  1.187848484848485
 -----------------------------------
 Classifier: LinearSVC
 Predictions Count:  40520
 Accuracy:  0.35254545454545455
 Jaccard Score:  0.5457015151515151
-Hamming loss:  1.0783030303030303
+Hamming Loss:  1.0783030303030303
 -----------------------------------
 Classifier: MultinomialNB
 Predictions Count:  14494
 Accuracy:  0.1365151515151515
 Jaccard Score:  0.2491956119637938
-Hamming loss:  1.565090909090909
+Hamming Loss:  1.565090909090909
 -----------------------------------
 Classifier: Perceptron
 Predictions Count:  62149
 Accuracy:  0.23587878787878788
 Jaccard Score:  0.48317538480038474
-Hamming loss:  1.636818181818182
+Hamming Loss:  1.636818181818182
 -----------------------------------
 Classifier: PassiveAggressiveClassifier
 Predictions Count:  53214
 Accuracy:  0.3063939393939394
 Jaccard Score:  0.5352883477633478
-Hamming loss:  1.3147272727272727
+Hamming Loss:  1.3147272727272727
 -----------------------------------
+
+=========================================================================================================
+
+11 August 2020 23:35 (maxFeatures = 1000) [LinearSVC accuracy drops massively, others also drop]
+
+Classifier: LogisticRegression
+Predictions Count:  30746
+Accuracy:  0.266
+Jaccard Score:  0.4224248917748918
+Hamming Loss:  1.2353636363636364
+-----------------------------------
+Classifier: LinearSVC
+Predictions Count:  32160
+Accuracy:  0.2799090909090909
+Jaccard Score:  0.4386365800865801
+Hamming Loss:  1.2032424242424242
+-----------------------------------
+Classifier: MultinomialNB
+Predictions Count:  16938
+Accuracy:  0.15657575757575756
+Jaccard Score:  0.2754570707070707
+Hamming Loss:  1.4911212121212123
+-----------------------------------
+Classifier: Perceptron
+Predictions Count:  66078
+Accuracy:  0.17527272727272727
+Jaccard Score:  0.39644171476671475
+Hamming Loss:  2.029
+-----------------------------------
+Classifier: PassiveAggressiveClassifier
+Predictions Count:  39630
+Accuracy:  0.27106060606060606
+Jaccard Score:  0.44793614718614716
+Hamming Loss:  1.3234848484848485
+-----------------------------------
+
+
+Linear Support Vector Classifier (SVC) Classification Report:
+                    precision    recall  f1-score   support
+
+              .net       0.66      0.08      0.14      1254
+              ajax       0.82      0.50      0.62       570
+         algorithm       0.50      0.13      0.21       136
+           android       0.97      0.47      0.64       919
+         angularjs       0.96      0.71      0.82       452
+            apache       0.63      0.12      0.20       146
+            arrays       0.63      0.32      0.42       757
+           asp.net       0.80      0.32      0.46      1278
+       asp.net-mvc       0.73      0.35      0.47       401
+                 c       0.70      0.13      0.22      1045
+                c#       0.88      0.53      0.66      6330
+               c++       0.93      0.43      0.59      2145
+             class       0.00      0.00      0.00       173
+       cocoa-touch       0.00      0.00      0.00       173
+       codeigniter       0.99      0.78      0.87       279
+               css       0.75      0.19      0.31       590
+               csv       0.81      0.65      0.72       142
+          database       1.00      0.00      0.01       241
+              date       0.45      0.11      0.18       208
+          datetime       0.57      0.20      0.30       179
+            django       0.99      0.71      0.83       598
+               dom       0.60      0.24      0.34       130
+           eclipse       0.87      0.53      0.66       328
+  entity-framework       0.82      0.42      0.55       212
+             excel       0.66      0.54      0.59       147
+          facebook       0.88      0.73      0.80       157
+              file       0.00      0.00      0.00       187
+             forms       0.65      0.07      0.13       296
+          function       0.00      0.00      0.00       169
+          generics       0.84      0.43      0.57       130
+       google-maps       0.80      0.56      0.66       139
+         hibernate       0.96      0.53      0.68       263
+              html       0.64      0.18      0.28      1578
+             html5       0.83      0.23      0.36       271
+             image       0.21      0.01      0.03       224
+               ios       0.75      0.29      0.42      1073
+            iphone       0.77      0.18      0.29       622
+              java       0.94      0.54      0.69      6078
+        javascript       0.89      0.64      0.74      6260
+            jquery       0.87      0.43      0.57      2469
+              json       0.86      0.60      0.71       681
+               jsp       0.92      0.40      0.55       224
+           laravel       0.83      0.74      0.78       160
+              linq       0.85      0.59      0.70       330
+             linux       0.74      0.25      0.38       275
+              list       0.40      0.09      0.14       232
+             loops       0.00      0.00      0.00       134
+             maven       0.82      0.53      0.65       152
+           mongodb       0.98      0.49      0.65       115
+    multithreading       0.66      0.33      0.44       376
+             mysql       0.90      0.44      0.59      1033
+           node.js       0.98      0.26      0.41       232
+             numpy       1.00      0.42      0.59       140
+       objective-c       0.89      0.39      0.55      1403
+               oop       0.00      0.00      0.00       129
+            opencv       1.00      0.62      0.77       142
+               osx       0.61      0.25      0.35       149
+            pandas       0.97      0.74      0.84       158
+           parsing       0.00      0.00      0.00       136
+       performance       0.59      0.08      0.13       171
+               php       0.95      0.61      0.75      4635
+          pointers       0.62      0.29      0.40       126
+            python       0.96      0.57      0.72      2948
+        python-2.7       0.00      0.00      0.00       143
+        python-3.x       0.00      0.00      0.00       142
+                qt       0.87      0.46      0.60       141
+                 r       0.86      0.17      0.28       590
+             regex       0.94      0.59      0.72       449
+              rest       0.74      0.43      0.54       156
+              ruby       0.84      0.43      0.57       758
+     ruby-on-rails       0.93      0.55      0.69      1078
+   ruby-on-rails-3       0.00      0.00      0.00       213
+          selenium       0.88      0.70      0.78       132
+          servlets       0.86      0.37      0.52       171
+           session       0.54      0.31      0.39       130
+           sockets       0.77      0.35      0.48       188
+           sorting       0.62      0.52      0.56       130
+            spring       0.82      0.56      0.66       423
+        spring-mvc       0.73      0.26      0.38       198
+               sql       0.53      0.14      0.22       420
+        sql-server       0.69      0.11      0.19       185
+            string       0.51      0.06      0.11       516
+             swift       1.00      0.61      0.76       463
+             swing       0.92      0.39      0.55       242
+ twitter-bootstrap       0.85      0.63      0.73       155
+       uitableview       0.72      0.32      0.44       131
+      unit-testing       0.77      0.27      0.40       158
+        validation       0.54      0.21      0.30       174
+            vb.net       0.99      0.36      0.52       647
+     visual-studio       0.56      0.10      0.17       186
+visual-studio-2010       0.54      0.11      0.18       198
+               wcf       0.99      0.69      0.81       119
+      web-services       0.68      0.32      0.44       186
+           windows       0.38      0.02      0.04       266
+          winforms       0.74      0.14      0.24       492
+         wordpress       0.96      0.63      0.76       150
+               wpf       0.96      0.49      0.65       457
+              xaml       0.74      0.21      0.33       134
+             xcode       0.69      0.18      0.29       278
+               xml       0.75      0.50      0.60       472
+
+         micro avg       0.88      0.44      0.59     63901
+         macro avg       0.70      0.34      0.44     63901
+      weighted avg       0.83      0.44      0.56     63901
+       samples avg       0.57      0.46      0.49     63901
+=========================================================================================================
+
+11 August 2020 23:45 (maxFeatures = 5000)
+
