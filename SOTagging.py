@@ -237,7 +237,8 @@ tagsDocument = corpusDF['tags']
 	The custom token_pattern (see top of comment) considers a token a sequence of 2 or more non-whitespace characters 
 		and works for us for this corpus
 """
-titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=10000)
+maxFeatures = 100000
+titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=maxFeatures)
 from scipy.sparse import hstack
 #titlesVectorizer = hstack([titlesVectorizer])
 
@@ -254,12 +255,13 @@ from scipy.sparse import hstack
 	IF max_features is specified, then titlesMatrix will only consist of (corpusRowNumber, featureNumber) pairings
 		for features that are part of the top <max_features> features
 """
-titlesDocument = titlesDocument[0:100]
+#titlesDocument = titlesDocument[0:1000]
 titlesMatrix = titlesVectorizer.fit_transform(titlesDocument) #TF-IDF-weighted document-term matrix
 print("The titles column from the data frame has been converted into a TF-IDF weighted document-term matrix")
 
-print("Top features (words) from the questions", titlesVectorizer.get_feature_names())
-print("N.o. unique feautures: ", titlesMatrix.shape[1]) #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
+print("Top ", maxFeatures," features (words) from the questions", titlesVectorizer.get_feature_names())
+print(titlesMatrix.shape)   #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
+print("N.o. unique feautures: ", titlesMatrix.shape[1])
 #print(titlesMatrix)
 
 print()
@@ -280,7 +282,7 @@ print()
 			otherwise the value is 0 
 """
 tagsBinarizer = sklearn.preprocessing.MultiLabelBinarizer() #create MLB object
-tagsDocument = tagsDocument[0:100]
+#tagsDocument = tagsDocument[0:1000]
 tagsBinaryMatrix = tagsBinarizer.fit_transform(tagsDocument) #create the binary matrix
 print("The tags column from the data frame has been converted into a binary matrix")
 
@@ -304,7 +306,7 @@ print()
 titlesTrain, titlesTest, tagsTrain, tagsTest = sklearn.model_selection.train_test_split(titlesMatrix, tagsBinaryMatrix, test_size= 0.33)
 print("The labelled dataset (individual matrices for the columns) has been split into a Training Set and a Test Set (67% Training - 33% Testing ratio)")
 
-print(tagsTrain.shape) #(rows, columns) | columns is the number of classes (tags)
+print(tagsTest.shape) #(rows, columns) | columns is the number of classes (tags)
 #print(tagsTrain)
 print()
 
@@ -333,11 +335,11 @@ mlpClassifier = MLPClassifier()
 from sklearn.multiclass import OneVsRestClassifier
 
 
-for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paClassifer, mlpClassifier]:
+for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paClassifer]:
 	c = OneVsRestClassifier(classifier)
 	c.fit(titlesTrain, tagsTrain)
 	tagsPredict = c.predict(titlesTest)
-	count = 0;
+	count = 0
 	for r in tagsPredict:
 		for c in r:
 			count = count + c
@@ -350,13 +352,33 @@ for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paCla
 	print("-----------------------------------")
 
 
-print("\t 1. MLP CLassifier")
+#print("\t 1. MLP CLassifier")
 
 """MLP Classifier Model"""
-from sklearn.neural_network import MLPClassifier
+#from sklearn.neural_network import MLPClassifier
+
+"""
+	MLP Classifier is too computationally expensive and my machine cant handle it
+	Trying out LinearSVC instead
+"""
+
+"""
 mlpClassifier = MLPClassifier()
 mlpClassifier.fit(titlesTrain, tagsTrain)
 tagsPredict = mlpClassifier.predict(titlesTest)
+"""
+
+"""
+	Wrapping LinearSVC in OvR to be able to perform multi-label classification
+	
+	Also known as one-vs-all, this strategy consists in fitting one classifier per class. For each classifier, the class is fitted against all the other classes. In addition to its computational efficiency (only n_classes classifiers are needed), one advantage of this approach is its interpretability. Since each class is represented by one and one classifier only, it is possible to gain knowledge about the class by inspecting its corresponding classifier. This is the most commonly used strategy for multiclass classification and is a fair default choice.
+	This strategy can also be used for multilabel learning, where a classifier is used to predict multiple labels for instance, by fitting on a 2-d matrix in which cell [i, j] is 1 if sample i has label j and 0 otherwise.
+	In the multilabel learning literature, OvR is also known as the binary relevance method.
+"""
+print("Linear Support Vector Classifier")
+lsvClassifier = OneVsRestClassifier(LinearSVC())
+lsvClassifier.fit(titlesTrain, tagsTrain)
+tagsPredict = lsvClassifier.predict(titlesTest)
 
 print("tags test and predict")
 print(tagsTest)
@@ -367,6 +389,15 @@ print(tagsPredict)
 	default normalise = True
 """
 accuracy = sklearn.metrics.accuracy_score(tagsTest, tagsPredict, normalize=True)
+
+tagsPredict = c.predict(titlesTest)
+
+count = 0
+for r in tagsPredict:
+	for c in r:
+		count = count + c
+
+print("Predictions Count: ",count )
 print("Accuracy: ", accuracy)
 print("Accuracy for each tag:")
 for tag in range(tagsTest.shape[1]):
@@ -377,17 +408,21 @@ jaccard = sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples'
 print("Jaccard Similarity Coefficient: ", jaccard)
 
 print()
+tpCount = 0
 print("Confusion Matrix:")
 #This does the CM for each tag(class) (binary 2x2 matrix)
 print("TN\tFP\nFN\tTP")
 for tag in range(tagsTest.shape[1]): #tag is the class
 	print(tag) #tag number
 	print(tagsBinarizer.classes_[tag]) #tag text
-	print(tagsTest[:,tag]) #column for this tag (ground truth)
-	print(tagsPredict[:,tag]) #column for this tag (predicted)
+	#print(tagsTest[:,tag]) #column for this tag (ground truth)
+	#print(tagsPredict[:,tag]) #column for this tag (predicted)
+	tn, fp, fn, tp = sklearn.metrics.confusion_matrix(tagsTest[:,tag], tagsPredict[:,tag])
+	tpCount = tpCount + tp
 	print(sklearn.metrics.confusion_matrix(tagsTest[:,tag], tagsPredict[:,tag]))
 	print()
 
+print("True Positives's count: ", tpCount)
 print()
 #Do CM on entire matrix (overall)
 #print(sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
