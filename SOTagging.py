@@ -195,12 +195,15 @@ for questionTags in corpusDF['tags'].values: #questionTags is a list of all the 
 		tagsList.append(tag)
 
 tagsSet = set(tagsList) #convert tagsList to a set to only store unique tags (one instance of each tag)
-uniqueTagsList = list(tagsSet)
+uniqueTagsList = sorted(list(tagsSet))
+
 
 print("\nInformation about the corpus:")
 print("\tNumber of questions: ", len(corpusDF), sep='\t\t')     #100000
 print("\tTotal number of tags used: ", len(tagsList), sep='\t') #194219
 print("\tNumber of unique tags: ", len(tagsSet), sep='\t\t')    #100
+print()
+print("All unique tags (classes) used: ", uniqueTagsList)
 print()
 
 """
@@ -237,13 +240,13 @@ tagsDocument = corpusDF['tags']
 	The custom token_pattern (see top of comment) considers a token a sequence of 2 or more non-whitespace characters 
 		and works for us for this corpus
 """
-maxFeatures = 100000
+maxFeatures = 1000
 titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=maxFeatures)
 from scipy.sparse import hstack
 #titlesVectorizer = hstack([titlesVectorizer])
 
 """
-	Each row in the titlesMatrix is: (corpusRowNumber, featureNumber) \t probability?
+	Each row in the titlesMatrix is: (corpusRowNumber, featureNumber) \t fractionValue(probability)
 	For a question from 'title' column in the corpus contaning n words/tokens, there will 
 		be n rows in titlesMatrix, one for each word/token(feature) in the question
 	Thus the total number of rows in titlesMatrix is the total number of tokens in 
@@ -258,10 +261,9 @@ from scipy.sparse import hstack
 #titlesDocument = titlesDocument[0:1000]
 titlesMatrix = titlesVectorizer.fit_transform(titlesDocument) #TF-IDF-weighted document-term matrix
 print("The titles column from the data frame has been converted into a TF-IDF weighted document-term matrix")
-
-print("Top ", maxFeatures," features (words) from the questions", titlesVectorizer.get_feature_names())
-print(titlesMatrix.shape)   #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
-print("N.o. unique feautures: ", titlesMatrix.shape[1])
+print("\tTop ", maxFeatures, " features (words) from the questions", titlesVectorizer.get_feature_names())
+print("\tN.o. of question titles: ", titlesMatrix.shape[0])
+print("\tN.o. of unique feautures(words): ", titlesMatrix.shape[1])
 #print(titlesMatrix)
 
 print()
@@ -285,10 +287,10 @@ tagsBinarizer = sklearn.preprocessing.MultiLabelBinarizer() #create MLB object
 #tagsDocument = tagsDocument[0:1000]
 tagsBinaryMatrix = tagsBinarizer.fit_transform(tagsDocument) #create the binary matrix
 print("The tags column from the data frame has been converted into a binary matrix")
-
+print("All 100 unique tags (classes) used: ")
 print(tagsBinarizer.classes_) # displays the set of all (unique) classes (100 tags)
-print(tagsBinaryMatrix)
-print(tagsBinaryMatrix.shape)
+#print(tagsBinaryMatrix)
+#print(tagsBinaryMatrix.shape)
 print()
 
 
@@ -302,11 +304,13 @@ print()
 	
 	titlesTest is what we are going to use to predict tags to test our model
 	tagsTest matrix is the 'ground truth'
+	
+	Since we are not specifying a random_state value, the train and test datasets will be different on every run
 """
 titlesTrain, titlesTest, tagsTrain, tagsTest = sklearn.model_selection.train_test_split(titlesMatrix, tagsBinaryMatrix, test_size= 0.33)
 print("The labelled dataset (individual matrices for the columns) has been split into a Training Set and a Test Set (67% Training - 33% Testing ratio)")
-
-print(tagsTest.shape) #(rows, columns) | columns is the number of classes (tags)
+print("\tThus 33000 questions of the 100000 will be used for Training")
+#print(tagsTest.shape) #(rows, columns) | columns is the number of classes (tags)
 #print(tagsTrain)
 print()
 
@@ -314,7 +318,7 @@ print("Training the model:")
 
 """Classifiers"""
 from sklearn.linear_model import LogisticRegression
-lrClassifier = LogisticRegression()
+lrClassifier = LogisticRegression(max_iter=100000)
 
 from sklearn.svm import LinearSVC
 lsvClassifier = LinearSVC()
@@ -380,17 +384,15 @@ lsvClassifier = OneVsRestClassifier(LinearSVC())
 lsvClassifier.fit(titlesTrain, tagsTrain)
 tagsPredict = lsvClassifier.predict(titlesTest)
 
-print("tags test and predict")
-print(tagsTest)
-print(tagsPredict)
+#print("tags test and predict")
+#print(tagsTest)
+#print(tagsPredict)
 """
 	normalize = True -> returns fraction (in decimal) of correctly classified samples (best performance = 1)
 	normalise = False -> returns count  of correctly classified samples
 	default normalise = True
 """
 accuracy = sklearn.metrics.accuracy_score(tagsTest, tagsPredict, normalize=True)
-
-tagsPredict = c.predict(titlesTest)
 
 count = 0
 for r in tagsPredict:
@@ -408,7 +410,12 @@ jaccard = sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples'
 print("Jaccard Similarity Coefficient: ", jaccard)
 
 print()
+
 tpCount = 0
+fpCount = 0
+fnCount = 0
+tnCount = 0
+
 print("Confusion Matrix:")
 #This does the CM for each tag(class) (binary 2x2 matrix)
 print("TN\tFP\nFN\tTP")
@@ -417,15 +424,30 @@ for tag in range(tagsTest.shape[1]): #tag is the class
 	print(tagsBinarizer.classes_[tag]) #tag text
 	#print(tagsTest[:,tag]) #column for this tag (ground truth)
 	#print(tagsPredict[:,tag]) #column for this tag (predicted)
-	tn, fp, fn, tp = sklearn.metrics.confusion_matrix(tagsTest[:,tag], tagsPredict[:,tag])
-	tpCount = tpCount + tp
+	tn, fp, fn, tp = sklearn.metrics.confusion_matrix(tagsTest[:,tag], tagsPredict[:,tag]).ravel()
+	tpCount += tp
+	fpCount += fp
+	fnCount += fn
+	tnCount += tn
+
 	print(sklearn.metrics.confusion_matrix(tagsTest[:,tag], tagsPredict[:,tag]))
 	print()
 
-print("True Positives's count: ", tpCount)
+print("True Positives count: ", tpCount)
+print("False Positives count: ", fpCount)
+print("False Negatives count: ", fnCount)
+print("True Negatives count: ", tnCount)
 print()
+
+print("Classification Report")
+"""
+	Build a text report showing the main classification metrics
+"""
+print(sklearn.metrics.classification_report(tagsTest, tagsPredict))
 #Do CM on entire matrix (overall)
 #print(sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
+
+
 
 
 

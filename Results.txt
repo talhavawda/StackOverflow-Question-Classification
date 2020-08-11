@@ -1,0 +1,137 @@
+11 August 2020 22:45
+
+Classifier: LogisticRegression
+Predictions Count:  31590
+Accuracy:  0.28184848484848485
+Jaccard Score:  0.4483449494949495
+Hamming loss:  1.1906060606060607
+-----------------------------------
+Classifier: LinearSVC
+Predictions Count:  39783
+Accuracy:  0.34839393939393937
+Jaccard Score:  0.5406113275613275
+Hamming loss:  1.0653636363636363
+-----------------------------------
+Classifier: MultinomialNB
+Predictions Count:  6186
+Accuracy:  0.05703030303030303
+Jaccard Score:  0.11052070707070707
+Hamming loss:  1.7659999999999998
+-----------------------------------
+Classifier: Perceptron
+Predictions Count:  56694
+Accuracy:  0.24672727272727274
+Jaccard Score:  0.4839684704184704
+Hamming loss:  1.5149696969696969
+-----------------------------------
+Classifier: PassiveAggressiveClassifier
+Predictions Count:  49450
+Accuracy:  0.3077575757575758
+Jaccard Score:  0.526548556998557
+Hamming loss:  1.2672121212121212
+-----------------------------------
+
+=========================================================================================================
+
+11 August 2020 22:55 (no change to above model)
+
+Classifier: LogisticRegression
+Predictions Count:  31191
+Accuracy:  0.2831818181818182
+Jaccard Score:  0.4474240259740259
+Hamming loss:  1.1972727272727273
+-----------------------------------
+Classifier: LinearSVC
+Predictions Count:  39825
+Accuracy:  0.3495757575757576
+Jaccard Score:  0.5404950216450216
+Hamming loss:  1.0707878787878786
+-----------------------------------
+Classifier: MultinomialNB
+Predictions Count:  6205
+Accuracy:  0.05624242424242424
+Jaccard Score:  0.109860101010101
+Hamming loss:  1.7685454545454546
+-----------------------------------
+Classifier: Perceptron
+Predictions Count:  59311
+Accuracy:  0.24254545454545454
+Jaccard Score:  0.48420206830206824
+Hamming loss:  1.558121212121212
+-----------------------------------
+Classifier: PassiveAggressiveClassifier
+Predictions Count:  50180
+Accuracy:  0.3075151515151515
+Jaccard Score:  0.529046115921116
+Hamming loss:  1.276939393939394
+-----------------------------------
+
+=========================================================================================================
+
+11 August 2020 23:30 (maxFeatures = 10000) (no change to above model)
+
+Classifier: LogisticRegression
+Predictions Count:  32095
+Accuracy:  0.2861212121212121
+Jaccard Score:  0.45541904761904756
+Hamming loss:  1.1828181818181818
+-----------------------------------
+Classifier: LinearSVC
+Predictions Count:  40491
+Accuracy:  0.3496969696969697
+Jaccard Score:  0.5431690476190476
+Hamming loss:  1.0777878787878787
+-----------------------------------
+Classifier: MultinomialNB
+Predictions Count:  14473
+Accuracy:  0.1343030303030303
+Jaccard Score:  0.2480907713498622
+Hamming loss:  1.555969696969697
+-----------------------------------
+Classifier: Perceptron
+Predictions Count:  62467
+Accuracy:  0.23915151515151514
+Jaccard Score:  0.48579071669071666
+Hamming loss:  1.629060606060606
+-----------------------------------
+Classifier: PassiveAggressiveClassifier
+Predictions Count:  52350
+Accuracy:  0.31066666666666665
+Jaccard Score:  0.5366055194805195
+Hamming loss:  1.2965454545454547
+-----------------------------------
+
+=========================================================================================================
+
+11 August 2020 23:00 (maxFeatures = 10000)
+
+Classifier: LogisticRegression
+Predictions Count:  32009
+Accuracy:  0.28839393939393937
+Jaccard Score:  0.45661854256854256
+Hamming loss:  1.187848484848485
+-----------------------------------
+Classifier: LinearSVC
+Predictions Count:  40520
+Accuracy:  0.35254545454545455
+Jaccard Score:  0.5457015151515151
+Hamming loss:  1.0783030303030303
+-----------------------------------
+Classifier: MultinomialNB
+Predictions Count:  14494
+Accuracy:  0.1365151515151515
+Jaccard Score:  0.2491956119637938
+Hamming loss:  1.565090909090909
+-----------------------------------
+Classifier: Perceptron
+Predictions Count:  62149
+Accuracy:  0.23587878787878788
+Jaccard Score:  0.48317538480038474
+Hamming loss:  1.636818181818182
+-----------------------------------
+Classifier: PassiveAggressiveClassifier
+Predictions Count:  53214
+Accuracy:  0.3063939393939394
+Jaccard Score:  0.5352883477633478
+Hamming loss:  1.3147272727272727
+-----------------------------------

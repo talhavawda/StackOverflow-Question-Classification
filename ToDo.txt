@@ -7,7 +7,7 @@
 	2.3 cleanPunct()
 
 3. Training
-	3.1
+	3.1 train_test_split() [is this Bag of Words approach?]
 
 
 Metrics
@@ -20,4 +20,11 @@ Metrics
 	Golden Standard
 
 
-Change maxFeatures in titlesVectoriser
+Change maxFeatures value in titlesVectoriser
+
+Show most popular tags (see Miljan's tutorial)
+	Do th modelling on top 10 tags only?
+
+Set random_set value for train_test_split() ?
+
+"We probably can achieve a better result by parameter tuning"
