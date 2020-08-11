@@ -305,11 +305,12 @@ print()
 	titlesTest is what we are going to use to predict tags to test our model
 	tagsTest matrix is the 'ground truth'
 	
-	Since we are not specifying a random_state value, the train and test datasets will be different on every run
+	Since we are not specifying a random_state value, the train and test datasets will be shuffled differently on every run
+		If an integer value is specified, a same/similar shuffle will be done each time resulting in the same train and test datasets
 """
 titlesTrain, titlesTest, tagsTrain, tagsTest = sklearn.model_selection.train_test_split(titlesMatrix, tagsBinaryMatrix, test_size= 0.33)
 print("The labelled dataset (individual matrices for the columns) has been split into a Training Set and a Test Set (67% Training - 33% Testing ratio)")
-print("\tThus 33000 questions of the 100000 will be used for Training")
+print("\tThus 33000 questions of the 100000 will be used for Testing")
 #print(tagsTest.shape) #(rows, columns) | columns is the number of classes (tags)
 #print(tagsTrain)
 print()
@@ -353,8 +354,10 @@ for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paCla
 	print("Accuracy: ", sklearn.metrics.accuracy_score(tagsTest, tagsPredict))
 	print("Jaccard Score: ", sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples'))
 	print("Hamming Loss: ", sklearn.metrics.hamming_loss(tagsTest, tagsPredict) * 100)
+	print("Confusion Matrix: ", sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
 	print("-----------------------------------")
 
+print()
 
 #print("\t 1. MLP CLassifier")
 

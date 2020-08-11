@@ -283,4 +283,144 @@ visual-studio-2010       0.54      0.11      0.18       198
 =========================================================================================================
 
 11 August 2020 23:45 (maxFeatures = 5000)
+[the classifiers look similar to mF=10000. LSVC CR - precision is better on mF=1000]
 
+Classifier: LogisticRegression
+Predictions Count:  32451
+Accuracy:  0.2928181818181818
+Jaccard Score:  0.4616115440115439
+Hamming Loss:  1.1773030303030303
+-----------------------------------
+Classifier: LinearSVC
+Predictions Count:  39762
+Accuracy:  0.3466666666666667
+Jaccard Score:  0.5364659451659453
+Hamming Loss:  1.0823030303030303
+-----------------------------------
+Classifier: MultinomialNB
+Predictions Count:  16926
+Accuracy:  0.16121212121212122
+Jaccard Score:  0.28850959595959597
+Hamming Loss:  1.4944242424242424
+-----------------------------------
+Classifier: Perceptron
+Predictions Count:  65119
+Accuracy:  0.22281818181818183
+Jaccard Score:  0.4710078304691941
+Hamming Loss:  1.7265757575757577
+-----------------------------------
+Classifier: PassiveAggressiveClassifier
+Predictions Count:  48745
+Accuracy:  0.3155151515151515
+Jaccard Score:  0.5292452861952861
+Hamming Loss:  1.2626969696969697
+-----------------------------------
+
+Linear Support Vector Classifier (SVC) Classification Report:
+                    precision    recall  f1-score   support
+
+              .net       0.56      0.08      0.14      1275
+              ajax       0.79      0.51      0.62       587
+         algorithm       0.40      0.05      0.09       157
+           android       0.95      0.59      0.73       938
+         angularjs       0.95      0.75      0.84       454
+            apache       0.71      0.20      0.31       128
+            arrays       0.55      0.37      0.44       716
+           asp.net       0.81      0.36      0.50      1283
+       asp.net-mvc       0.69      0.35      0.46       425
+                 c       0.70      0.30      0.42      1035
+                c#       0.86      0.66      0.75      6187
+               c++       0.87      0.55      0.67      2226
+             class       0.27      0.02      0.04       177
+       cocoa-touch       0.00      0.00      0.00       152
+       codeigniter       0.98      0.78      0.87       254
+               css       0.68      0.29      0.40       573
+               csv       0.81      0.72      0.76       151
+          database       0.25      0.00      0.01       263
+              date       0.47      0.27      0.34       196
+          datetime       0.54      0.19      0.28       187
+            django       0.99      0.75      0.85       588
+               dom       0.62      0.20      0.31       123
+           eclipse       0.91      0.52      0.66       339
+  entity-framework       0.87      0.50      0.64       222
+             excel       0.68      0.59      0.63       156
+          facebook       0.88      0.74      0.81       183
+              file       0.00      0.00      0.00       199
+             forms       0.44      0.12      0.19       284
+          function       0.00      0.00      0.00       164
+          generics       0.74      0.53      0.62       117
+       google-maps       0.71      0.50      0.59       134
+         hibernate       0.97      0.58      0.72       266
+              html       0.66      0.20      0.31      1563
+             html5       0.73      0.23      0.35       264
+             image       0.24      0.07      0.11       205
+               ios       0.68      0.39      0.50      1066
+            iphone       0.66      0.25      0.36       634
+              java       0.93      0.71      0.80      6182
+        javascript       0.89      0.75      0.82      6266
+            jquery       0.86      0.49      0.62      2523
+              json       0.86      0.64      0.73       628
+               jsp       0.94      0.44      0.60       230
+           laravel       0.79      0.73      0.76       164
+              linq       0.82      0.57      0.67       319
+             linux       0.70      0.28      0.40       263
+              list       0.46      0.16      0.24       225
+             loops       0.29      0.03      0.05       135
+             maven       0.81      0.48      0.61       137
+           mongodb       0.93      0.78      0.85       114
+    multithreading       0.73      0.43      0.54       377
+             mysql       0.88      0.51      0.65      1022
+           node.js       0.93      0.56      0.70       261
+             numpy       0.95      0.48      0.64       147
+       objective-c       0.87      0.62      0.73      1397
+               oop       0.73      0.06      0.11       137
+            opencv       0.99      0.68      0.80       146
+               osx       0.69      0.26      0.38       167
+            pandas       0.97      0.77      0.86       168
+           parsing       0.52      0.10      0.16       135
+       performance       0.38      0.09      0.15       162
+               php       0.94      0.71      0.81      4624
+          pointers       0.65      0.26      0.37       137
+            python       0.95      0.69      0.80      2954
+        python-2.7       0.36      0.03      0.05       136
+        python-3.x       0.50      0.03      0.06       123
+                qt       0.90      0.50      0.64       157
+                 r       0.87      0.44      0.59       581
+             regex       0.91      0.63      0.74       466
+              rest       0.74      0.52      0.61       135
+              ruby       0.77      0.42      0.54       800
+     ruby-on-rails       0.93      0.66      0.77      1156
+   ruby-on-rails-3       0.12      0.01      0.02       248
+          selenium       0.88      0.67      0.76       150
+          servlets       0.84      0.37      0.52       163
+           session       0.62      0.40      0.48       144
+           sockets       0.77      0.51      0.62       187
+           sorting       0.61      0.40      0.48       129
+            spring       0.80      0.58      0.67       466
+        spring-mvc       0.69      0.29      0.41       231
+               sql       0.54      0.13      0.21       425
+        sql-server       0.61      0.17      0.26       200
+            string       0.54      0.15      0.24       526
+             swift       0.99      0.62      0.76       456
+             swing       0.86      0.56      0.68       243
+ twitter-bootstrap       0.82      0.64      0.72       162
+       uitableview       0.85      0.58      0.69       141
+      unit-testing       0.67      0.34      0.45       145
+        validation       0.53      0.25      0.34       186
+            vb.net       0.99      0.39      0.56       636
+     visual-studio       0.31      0.12      0.17       168
+visual-studio-2010       0.74      0.13      0.22       190
+               wcf       0.97      0.69      0.81       120
+      web-services       0.72      0.35      0.47       226
+           windows       0.30      0.04      0.08       301
+          winforms       0.66      0.23      0.34       469
+         wordpress       0.94      0.71      0.81       146
+               wpf       0.93      0.57      0.71       398
+              xaml       0.63      0.20      0.30       121
+             xcode       0.63      0.18      0.28       294
+               xml       0.72      0.50      0.59       416
+
+         micro avg       0.86      0.53      0.66     64132
+         macro avg       0.70      0.40      0.49     64132
+      weighted avg       0.81      0.53      0.63     64132
+       samples avg       0.69      0.57      0.60     64132
