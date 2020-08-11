@@ -236,25 +236,26 @@ tagsDocument = corpusDF['tags']
 	The custom token_pattern (see top of comment) considers a token a sequence of 2 or more non-whitespace characters 
 		and works for us for this corpus
 """
-vectoriserTrain = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=1000)
+titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=1000)
 
 """
-	Each row in the titlesMatrix_TF_IDF is: (corpusRowNumber, featureNumber) \t probability?
+	Each row in the titlesMatrix is: (corpusRowNumber, featureNumber) \t probability?
 	For a question from 'title' column in the corpus contaning n words/tokens, there will 
-		be n rows in titlesMatrix_TF_IDF, one for each word/token(feature) in the question
-	Thus the total number of rows in titlesMatrix_TF_IDF is the total number of tokens in 
+		be n rows in titlesMatrix, one for each word/token(feature) in the question
+	Thus the total number of rows in titlesMatrix is the total number of tokens in 
 		the 'titles' column in the corpus (IF max_features not specified)
-	Thus the titlesMatrix_TF_IDF is a combination of all (corpusRowNumber, featureNumber) pairings
+	Thus the titlesMatrix is a combination of all (corpusRowNumber, featureNumber) pairings
 	
 	max_features (parameter in TfidfVectorizer above) – If specified, build a vocabulary that only 
 		considers the top <max_features> features ordered by term frequency across the corpus
-	IF max_features is specified, then titlesMatrix_TF_IDF will only consist of (corpusRowNumber, featureNumber) pairings
+	IF max_features is specified, then titlesMatrix will only consist of (corpusRowNumber, featureNumber) pairings
 		for features that are part of the top <max_features> features
 """
-titlesMatrix_TF_IDF = vectoriserTrain.fit_transform(titlesDocument)
-print(vectoriserTrain.get_feature_names())
-print(titlesMatrix_TF_IDF.shape) #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
-print(titlesMatrix_TF_IDF)
+titlesDocument = titlesDocument[0:100]
+titlesMatrix = titlesVectorizer.fit_transform(titlesDocument) #TF-IDF-weighted document-term matrix
+print(titlesVectorizer.get_feature_names())
+print(titlesMatrix.shape) #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
+#print(titlesMatrix)
 
 print()
 
@@ -262,22 +263,87 @@ print()
 	A MultiLabelBinarizer object transforms a list of tuples into a binary matrix using the fit_transform() function
 		indicating the presence of a class (tag) label
 	
+	
 	tagsDocument(corpusDF['tags']) is a 2D Array - it is a list of rows from the corpus,
-		and each row contains a tuple (a list of tags) for that rows question ('title' column)
+		and each row contains a tuple (the list of tags) for that rows question ('title' column)
+		
+	tagsBinaryMatrix
+		Each column is a unique tag -> thus the matrix will have 100 columns (since there are 100 tag classes in the entire corpus)
+			The columns' are tagsBinarizer.classes_ (they are in alphabetical order)
+		Each row represents (the list of tags for) a row from the corpus (a question title)
+		A cell's value is 1 if that tag (the column value) is in the list of tags for that corresponding question title
+			otherwise the value is 0 
 """
 tagsBinarizer = sklearn.preprocessing.MultiLabelBinarizer() #create MLB object
-#tagsDocument = tagsDocument[1:5]
+tagsDocument = tagsDocument[0:100]
 tagsBinaryMatrix = tagsBinarizer.fit_transform(tagsDocument) #create the binary matrix
-print(tagsBinarizer.classes_) # displays the set of all (unique) tags (100 tags)
+print(tagsBinarizer.classes_) # displays the set of all (unique) classes (100 tags)
 print(tagsBinaryMatrix)
-#print(tagsDocument[1:4].values)
+print(tagsBinaryMatrix.shape)
+print()
 
+"""
+	
+	Splitting the labelled dataset into a Training Set (67%) and a Test Set (33%) and doing the training and testing
+	The data is shuffled before splitting (by default)
+"""
+titlesTrain, titlesTest, tagsTrain, tagsTest = sklearn.model_selection.train_test_split(titlesMatrix, tagsBinaryMatrix, test_size= 0.33)
+print("Train and Test matrices:")
+print(tagsTrain.shape) #(rows, columns)
+#print(tagsTrain)
+#print(tagsTest)
+print(tagsTest.shape)
+print(tagsTest[:].shape)
+print(tagsTest[:,].shape)
+#print(tagsPredict.shape)
+
+print()
+
+"""MLP Classifier Model"""
+from sklearn.neural_network import MLPClassifier
+mlpClassifier = MLPClassifier()
+mlpClassifier.fit(titlesTrain, tagsTrain)
+tagsPredict = mlpClassifier.predict(titlesTest)
+
+"""
+	normalize = True -> returns fraction (in decimal) of correctly classified samples (best performance = 1)
+	normalise = False -> returns count  of correctly classified samples
+	default normalise = True
+"""
+accuracy = sklearn.metrics.accuracy_score(tagsTest[:,], tagsPredict[:,], normalize=True)
+print("Accuracy: ", accuracy)
+print("Accuracy for each tag:")
+for tag in range(tagsTest.shape[1]):
+	print(tagsBinarizer.classes_[tag], "\t",sklearn.metrics.accuracy_score(tagsTest[:,tag], tagsPredict[:,tag], normalize=True)) #tagsTest[:,tag] is the vertical array for that tag (column)
+
+
+print()
+print("Confusion Matrix:")
+#This does the CM for each tag(class) (binary 2x2 matrix)
+for tag in range(tagsTest.shape[1]): #tag is the class
+	print(tag) #tag number
+	print(tagsBinarizer.classes_[tag]) #tag text
+	print(tagsTest[:,tag]) #column for this tag
+	print(sklearn.metrics.confusion_matrix(tagsTest[:,tag], tagsPredict[:,tag]))
+	print()
+
+print()
+#Do CM on entire matrix (overall)
+#print(sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
+
+
+"""Using the dataFeame itself for splitting and testing"""
+dfBinary = sklearn.preprocessing.MultiLabelBinarizer()
+matrix = dfBinary.fit_transform(corpusDF[0:100])
+print(matrix)
+print(matrix.shape)
+print(dfBinary.classes_)
 
 """
 #LDA is a topic modeling algorithm that is used to extract topics with keywords in unlabeled documents
 from sklearn.decomposition import LatentDirichletAllocation
 noTopics = 20
-lda = LatentDirichletAllocation(noTopics, learning_method='online').fit(titlesMatrix_TF_IDF)
+lda = LatentDirichletAllocation(noTopics, learning_method='online').fit(titlesMatrix)
 
 def display_topics(model, feature_names, noOfTopWords):
 	for topic_idx, topic in enumerate(model.components_):
@@ -287,7 +353,7 @@ def display_topics(model, feature_names, noOfTopWords):
 		print("--------------------------------------------")
 
 noTopWords = 10
-display_topics(lda, vectoriserTrain.get_feature_names(), noTopWords) #Display the top <noTopWords> keywords in each of the <noTopics> topics
+display_topics(lda, titlesVectorizer.get_feature_names(), noTopWords) #Display the top <noTopWords> keywords in each of the <noTopics> topics
 """
 
 
@@ -296,6 +362,9 @@ display_topics(lda, vectoriserTrain.get_feature_names(), noTopWords) #Display th
 
 print()
 
+"""
+Used for testing the functions and what I've done:
+Testing displaying the data frame in different ways:
 
 #Display x rows in the corpusDF
 	#Using slicing - > [startIndex, endIndex+1] -> the second arg value is exclusive
@@ -355,3 +424,5 @@ print(corpusDF.info())
 
 print()
 print('Duplicate entries: {}'.format(corpusDF['title'].duplicated().sum()))
+
+"""
