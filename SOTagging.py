@@ -12,6 +12,7 @@
 
 	Acknowledgements:
 		1. GeeksForGeeks tutorials on pandas' DataFrame
+		2. TowardsDataScience's Multilabel Text Classification tutorial
 
 """
 
@@ -212,7 +213,7 @@ tagsFD.plot(100, cumulative=False)
 """
 
 
-"""3. Training"""
+
 
 
 #from nltk.tokenize import word_tokenize
@@ -236,7 +237,9 @@ tagsDocument = corpusDF['tags']
 	The custom token_pattern (see top of comment) considers a token a sequence of 2 or more non-whitespace characters 
 		and works for us for this corpus
 """
-titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=1000)
+titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=10000)
+from scipy.sparse import hstack
+#titlesVectorizer = hstack([titlesVectorizer])
 
 """
 	Each row in the titlesMatrix is: (corpusRowNumber, featureNumber) \t probability?
@@ -253,8 +256,10 @@ titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern
 """
 titlesDocument = titlesDocument[0:100]
 titlesMatrix = titlesVectorizer.fit_transform(titlesDocument) #TF-IDF-weighted document-term matrix
-print(titlesVectorizer.get_feature_names())
-print(titlesMatrix.shape) #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
+print("The titles column from the data frame has been converted into a TF-IDF weighted document-term matrix")
+
+print("Top features (words) from the questions", titlesVectorizer.get_feature_names())
+print("N.o. unique feautures: ", titlesMatrix.shape[1]) #(rowsCount, uniqueFeaturesCount) -> (100000, 25768)
 #print(titlesMatrix)
 
 print()
@@ -277,27 +282,75 @@ print()
 tagsBinarizer = sklearn.preprocessing.MultiLabelBinarizer() #create MLB object
 tagsDocument = tagsDocument[0:100]
 tagsBinaryMatrix = tagsBinarizer.fit_transform(tagsDocument) #create the binary matrix
+print("The tags column from the data frame has been converted into a binary matrix")
+
 print(tagsBinarizer.classes_) # displays the set of all (unique) classes (100 tags)
 print(tagsBinaryMatrix)
 print(tagsBinaryMatrix.shape)
 print()
 
+
+
+"""3. Training"""
+
 """
 	
 	Splitting the labelled dataset into a Training Set (67%) and a Test Set (33%) and doing the training and testing
 	The data is shuffled before splitting (by default)
+	
+	titlesTest is what we are going to use to predict tags to test our model
+	tagsTest matrix is the 'ground truth'
 """
 titlesTrain, titlesTest, tagsTrain, tagsTest = sklearn.model_selection.train_test_split(titlesMatrix, tagsBinaryMatrix, test_size= 0.33)
-print("Train and Test matrices:")
-print(tagsTrain.shape) #(rows, columns)
-#print(tagsTrain)
-#print(tagsTest)
-print(tagsTest.shape)
-print(tagsTest[:].shape)
-print(tagsTest[:,].shape)
-#print(tagsPredict.shape)
+print("The labelled dataset (individual matrices for the columns) has been split into a Training Set and a Test Set (67% Training - 33% Testing ratio)")
 
+print(tagsTrain.shape) #(rows, columns) | columns is the number of classes (tags)
+#print(tagsTrain)
 print()
+
+print("Training the model:")
+
+"""Classifiers"""
+from sklearn.linear_model import LogisticRegression
+lrClassifier = LogisticRegression()
+
+from sklearn.svm import LinearSVC
+lsvClassifier = LinearSVC()
+
+from sklearn.naive_bayes import MultinomialNB
+mnbClassifier = MultinomialNB()
+
+
+from sklearn.linear_model import Perceptron
+pClassifer = Perceptron()
+
+from sklearn.linear_model import PassiveAggressiveClassifier
+paClassifer = PassiveAggressiveClassifier()
+
+from sklearn.neural_network import MLPClassifier
+mlpClassifier = MLPClassifier()
+
+from sklearn.multiclass import OneVsRestClassifier
+
+
+for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paClassifer, mlpClassifier]:
+	c = OneVsRestClassifier(classifier)
+	c.fit(titlesTrain, tagsTrain)
+	tagsPredict = c.predict(titlesTest)
+	count = 0;
+	for r in tagsPredict:
+		for c in r:
+			count = count + c
+
+	print("Classifier:", classifier.__class__.__name__)
+	print("Predictions Count: ", count)
+	print("Accuracy: ", sklearn.metrics.accuracy_score(tagsTest, tagsPredict))
+	print("Jaccard Score: ", sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples'))
+	print("Hamming loss: ", sklearn.metrics.hamming_loss(tagsTest, tagsPredict) * 100)
+	print("-----------------------------------")
+
+
+print("\t 1. MLP CLassifier")
 
 """MLP Classifier Model"""
 from sklearn.neural_network import MLPClassifier
@@ -305,25 +358,33 @@ mlpClassifier = MLPClassifier()
 mlpClassifier.fit(titlesTrain, tagsTrain)
 tagsPredict = mlpClassifier.predict(titlesTest)
 
+print("tags test and predict")
+print(tagsTest)
+print(tagsPredict)
 """
 	normalize = True -> returns fraction (in decimal) of correctly classified samples (best performance = 1)
 	normalise = False -> returns count  of correctly classified samples
 	default normalise = True
 """
-accuracy = sklearn.metrics.accuracy_score(tagsTest[:,], tagsPredict[:,], normalize=True)
+accuracy = sklearn.metrics.accuracy_score(tagsTest, tagsPredict, normalize=True)
 print("Accuracy: ", accuracy)
 print("Accuracy for each tag:")
 for tag in range(tagsTest.shape[1]):
 	print(tagsBinarizer.classes_[tag], "\t",sklearn.metrics.accuracy_score(tagsTest[:,tag], tagsPredict[:,tag], normalize=True)) #tagsTest[:,tag] is the vertical array for that tag (column)
+print()
 
+jaccard = sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples')
+print("Jaccard Similarity Coefficient: ", jaccard)
 
 print()
 print("Confusion Matrix:")
 #This does the CM for each tag(class) (binary 2x2 matrix)
+print("TN\tFP\nFN\tTP")
 for tag in range(tagsTest.shape[1]): #tag is the class
 	print(tag) #tag number
 	print(tagsBinarizer.classes_[tag]) #tag text
-	print(tagsTest[:,tag]) #column for this tag
+	print(tagsTest[:,tag]) #column for this tag (ground truth)
+	print(tagsPredict[:,tag]) #column for this tag (predicted)
 	print(sklearn.metrics.confusion_matrix(tagsTest[:,tag], tagsPredict[:,tag]))
 	print()
 
@@ -332,12 +393,17 @@ print()
 #print(sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
 
 
-"""Using the dataFeame itself for splitting and testing"""
+
+"""
+"Using the dataFeame itself for splitting and testing"
 dfBinary = sklearn.preprocessing.MultiLabelBinarizer()
 matrix = dfBinary.fit_transform(corpusDF[0:100])
 print(matrix)
 print(matrix.shape)
 print(dfBinary.classes_)
+"""
+
+
 
 """
 #LDA is a topic modeling algorithm that is used to extract topics with keywords in unlabeled documents

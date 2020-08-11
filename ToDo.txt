@@ -1,7 +1,7 @@
 1. Obtain corpus
     Used pandas DataFrame
 
-2. Prepare the Data
+2. Prepare the Data (Preprocessing)
 	2.1 tagsAsList()
 	2.2 'titles' to lowercase
 	2.3 cleanPunct()
@@ -9,6 +9,15 @@
 3. Training
 	3.1
 
+
+Metrics
+	Accuracy
+	Precision
+	Error Rate
+	Recall
+	Confusion
+	F1 Score
+	Golden Standard
 
 
 Change maxFeatures in titlesVectoriser
