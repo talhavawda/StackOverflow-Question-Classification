@@ -27,4 +27,6 @@ Show most popular tags (see Miljan's tutorial)
 
 Set random_set value for train_test_split() ?
 
+change to 80-20 Training-Testing to see if I get better results?
+
 "We probably can achieve a better result by parameter tuning"

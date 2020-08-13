@@ -13,6 +13,7 @@
 	Acknowledgements:
 		1. GeeksForGeeks tutorials on pandas' DataFrame
 		2. TowardsDataScience's Multilabel Text Classification tutorial
+		3. Sklearn Documentation
 
 """
 
@@ -27,17 +28,16 @@ import sklearn
 """1. Obtain corpus"""
 
 #Using csv library
-"""
-with open("SODataset.csv") as corpusFile:
-	#c = csv.reader(corpusFile)
-	c = csv.DictReader(corpusFile)
-	for r in c:
-		print(f'{", ".join(r)}')
-		print(r)
-		print(f"{r['title']}\t{r['tags']}", end='\t\t')
-		print()
+#with open("SODataset.csv") as corpusFile:
+#	#c = csv.reader(corpusFile)
+#	c = csv.DictReader(corpusFile)
+#	for r in c:
+#		print(f'{", ".join(r)}')
+#		print(r)
+#		print(f"{r['title']}\t{r['tags']}", end='\t\t')
+#		print()
 
-"""
+
 
 
 #Using pandas library
@@ -50,7 +50,7 @@ print("Corpus has been read in as a DataFrame structure")
 
 """
 	Both the csv and pandas library do not recognise the elements in the 'tags' column in the corpus CSV file
-		as a list/array of elements. It sees it as a string. 
+		as a list/array of elements. It sees it as a string (with the symbols used to display a list part of it). 
 	So we need to process the data to extract the individual tags for a question and store them in a list (for that row)
 		and then replace the initial string with this list as the tags for that question
 """
@@ -68,7 +68,7 @@ def tagsAsList(tags: str):
 		The commas separating the tags remains, so as to identify the different tags
 	"""
 	regex = r'[\[\]\'\s]'
-	tagsMod = re.sub(regex, "", tags) #modified tags string with unneccesary symbols removed using the above regex
+	tagsMod = re.sub(regex, "", tags) #modified tags string with unnecessary symbols removed using the above regex
 
 	noTags = tagsMod.count(',') + 1 #number of tags in tags string
 
@@ -136,7 +136,7 @@ print("All question titles have been converted to lowercase")
 	Round Brackets are used in 2 ways:
 		1. Opening and Closing round bracket pair attached at the end of a function to show that its a function.
 			E.g. ...'parseDouble()'..., 'clear() methods in Java'
-		2. As parenthesis To specify extra information.
+		2. As parenthesis to specify extra information.
 			E.g.
 				'What does this (matplotlib) error message mean?'
 				'.animate not working in Firefox (.css does though)'
@@ -150,11 +150,10 @@ def cleanPunct(question : str):
 		:param question: a StackOverflow question as a string
 		:returns: the question with question mark(s), colon(s) and unnecessary round brackets removed removed (if it had any)
 	"""
-	# return question.replace('?', '')
 
 	"""
-		Within the sqaure brackets, we do NOT have to escape the non-alphabetic characters
-			E.g. can put just '?' instead of '\?' inside the sqaure brackets to match a question mark character,
+		Within the square brackets, we do NOT have to escape the non-alphabetic characters
+			E.g. can put just '?' instead of '\?' inside the square brackets to match a question mark character,
 				even though '?' is a special character
 	"""
 
@@ -203,8 +202,8 @@ print("\tNumber of questions: ", len(corpusDF), sep='\t\t')     #100000
 print("\tTotal number of tags used: ", len(tagsList), sep='\t') #194219
 print("\tNumber of unique tags: ", len(tagsSet), sep='\t\t')    #100
 print()
-print("All unique tags (classes) used: ", uniqueTagsList)
-print()
+#print("All unique tags (classes) used: ", uniqueTagsList)
+#print()
 
 """
 #Displaying a frequency distribution  of the tags
@@ -240,10 +239,9 @@ tagsDocument = corpusDF['tags']
 	The custom token_pattern (see top of comment) considers a token a sequence of 2 or more non-whitespace characters 
 		and works for us for this corpus
 """
-maxFeatures = 5000
+maxFeatures = 7500
 titlesVectorizer = sklearn.feature_extraction.text.TfidfVectorizer(token_pattern=r'(?u)\S\S+', max_features=maxFeatures)
-from scipy.sparse import hstack
-#titlesVectorizer = hstack([titlesVectorizer])
+
 
 """
 	Each row in the titlesMatrix is: (corpusRowNumber, featureNumber) \t fractionValue(probability)
@@ -261,7 +259,7 @@ from scipy.sparse import hstack
 #titlesDocument = titlesDocument[0:1000]
 titlesMatrix = titlesVectorizer.fit_transform(titlesDocument) #TF-IDF-weighted document-term matrix
 print("The titles column from the data frame has been converted into a TF-IDF weighted document-term matrix")
-print("\tTop ", maxFeatures, " features (words) from the questions", titlesVectorizer.get_feature_names())
+print#("\tTop ", maxFeatures, " features (words) from the questions", titlesVectorizer.get_feature_names())
 print("\tN.o. of question titles: ", titlesMatrix.shape[0])
 print("\tN.o. of unique feautures(words): ", titlesMatrix.shape[1])
 #print(titlesMatrix)
@@ -337,10 +335,13 @@ paClassifer = PassiveAggressiveClassifier()
 from sklearn.neural_network import MLPClassifier
 mlpClassifier = MLPClassifier()
 
+from sklearn.dummy import DummyClassifier
+dummy = DummyClassifier(strategy='stratified')
+
 from sklearn.multiclass import OneVsRestClassifier
 
 
-for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paClassifer]:
+for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paClassifer, dummy]:
 	c = OneVsRestClassifier(classifier)
 	c.fit(titlesTrain, tagsTrain)
 	tagsPredict = c.predict(titlesTest)
@@ -352,21 +353,24 @@ for classifier in [lrClassifier, lsvClassifier, mnbClassifier, pClassifer, paCla
 	print("Classifier:", classifier.__class__.__name__)
 	print("Predictions Count: ", count)
 	print("Accuracy: ", sklearn.metrics.accuracy_score(tagsTest, tagsPredict))
+	print("Precision: ", sklearn.metrics.precision_score(tagsTest, tagsPredict, average='samples', zero_division=0))
+	print("Recall: ", sklearn.metrics.recall_score(tagsTest, tagsPredict, average='samples'))
+	print("F1 Score: ", sklearn.metrics.f1_score(tagsTest, tagsPredict, average='samples'))
 	print("Jaccard Score: ", sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples'))
 	print("Hamming Loss: ", sklearn.metrics.hamming_loss(tagsTest, tagsPredict) * 100)
-	print("Confusion Matrix: ", sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
+	#print("Confusion Matrix: ", sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
 	print("-----------------------------------")
 
 print()
 
-#print("\t 1. MLP CLassifier")
+
 
 """MLP Classifier Model"""
 #from sklearn.neural_network import MLPClassifier
 
 """
 	MLP Classifier is too computationally expensive and my machine cant handle it
-	Trying out LinearSVC instead
+	Training PassiveAggressiveClassifier instead
 """
 
 """
@@ -376,14 +380,15 @@ tagsPredict = mlpClassifier.predict(titlesTest)
 """
 
 """
-	Wrapping LinearSVC in OvR to be able to perform multi-label classification
+	Wrapping PassiveAggressiveClassifier in OvR to be able to perform multi-label classification
 	
 	Also known as one-vs-all, this strategy consists in fitting one classifier per class. For each classifier, the class is fitted against all the other classes. In addition to its computational efficiency (only n_classes classifiers are needed), one advantage of this approach is its interpretability. Since each class is represented by one and one classifier only, it is possible to gain knowledge about the class by inspecting its corresponding classifier. This is the most commonly used strategy for multiclass classification and is a fair default choice.
 	This strategy can also be used for multilabel learning, where a classifier is used to predict multiple labels for instance, by fitting on a 2-d matrix in which cell [i, j] is 1 if sample i has label j and 0 otherwise.
 	In the multilabel learning literature, OvR is also known as the binary relevance method.
 """
-print("Linear Support Vector Classifier")
-lsvClassifier = OneVsRestClassifier(LinearSVC())
+print("================================================================")
+print("PassiveAggressiveClassifier")
+lsvClassifier = OneVsRestClassifier(PassiveAggressiveClassifier())
 lsvClassifier.fit(titlesTrain, tagsTrain)
 tagsPredict = lsvClassifier.predict(titlesTest)
 
@@ -395,22 +400,23 @@ tagsPredict = lsvClassifier.predict(titlesTest)
 	normalise = False -> returns count  of correctly classified samples
 	default normalise = True
 """
-accuracy = sklearn.metrics.accuracy_score(tagsTest, tagsPredict, normalize=True)
-
 count = 0
 for r in tagsPredict:
 	for c in r:
 		count = count + c
 
-print("Predictions Count: ",count )
-print("Accuracy: ", accuracy)
+print("Predictions Count: ", count)
+print("Accuracy: ", sklearn.metrics.accuracy_score(tagsTest, tagsPredict))
+print("Precision: ", sklearn.metrics.precision_score(tagsTest, tagsPredict, average='samples', zero_division=0))
+print("Recall: ", sklearn.metrics.recall_score(tagsTest, tagsPredict, average='samples'))
+print("F1 Score: ", sklearn.metrics.f1_score(tagsTest, tagsPredict, average='samples'))
+print("Jaccard Score: ", sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples'))
+print("Hamming Loss: ", sklearn.metrics.hamming_loss(tagsTest, tagsPredict) * 100)
+
 print("Accuracy for each tag:")
 for tag in range(tagsTest.shape[1]):
 	print(tagsBinarizer.classes_[tag], "\t",sklearn.metrics.accuracy_score(tagsTest[:,tag], tagsPredict[:,tag], normalize=True)) #tagsTest[:,tag] is the vertical array for that tag (column)
-print()
 
-jaccard = sklearn.metrics.jaccard_score(tagsTest, tagsPredict, average='samples')
-print("Jaccard Similarity Coefficient: ", jaccard)
 
 print()
 
@@ -419,11 +425,11 @@ fpCount = 0
 fnCount = 0
 tnCount = 0
 
-print("Confusion Matrix:")
+print("Confusion Matrix for each tag:")
 #This does the CM for each tag(class) (binary 2x2 matrix)
 print("TN\tFP\nFN\tTP")
 for tag in range(tagsTest.shape[1]): #tag is the class
-	print(tag) #tag number
+	#print(tag) #tag number
 	print(tagsBinarizer.classes_[tag]) #tag text
 	#print(tagsTest[:,tag]) #column for this tag (ground truth)
 	#print(tagsPredict[:,tag]) #column for this tag (predicted)
@@ -444,9 +450,9 @@ print()
 
 print("Classification Report")
 """
-	Build a text report showing the main classification metrics
+	Build a text report showing the main classification metrics (Precision, Recall, F1 Score)
 """
-print(sklearn.metrics.classification_report(tagsTest, tagsPredict, target_names=tagsBinarizer.classes_))
+print(sklearn.metrics.classification_report(tagsTest, tagsPredict, target_names=tagsBinarizer.classes_, zero_division=0))
 #Do CM on entire matrix (overall)
 #print(sklearn.metrics.confusion_matrix(tagsTest, tagsPredict))
 
@@ -454,14 +460,7 @@ print(sklearn.metrics.classification_report(tagsTest, tagsPredict, target_names=
 
 
 
-"""
-"Using the dataFeame itself for splitting and testing"
-dfBinary = sklearn.preprocessing.MultiLabelBinarizer()
-matrix = dfBinary.fit_transform(corpusDF[0:100])
-print(matrix)
-print(matrix.shape)
-print(dfBinary.classes_)
-"""
+
 
 
 
@@ -482,11 +481,6 @@ noTopWords = 10
 display_topics(lda, titlesVectorizer.get_feature_names(), noTopWords) #Display the top <noTopWords> keywords in each of the <noTopics> topics
 """
 
-
-
-
-
-print()
 
 """
 Used for testing the functions and what I've done:
